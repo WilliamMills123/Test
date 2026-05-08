@@ -217,6 +217,46 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
 .search-bar input::placeholder{color:var(--text-muted);}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg-raised);color:var(--text-primary);border:1px solid var(--border-bright);padding:12px 20px;border-radius:var(--radius);font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:9999;transition:transform .3s ease;}
 .toast.show{transform:translateX(-50%) translateY(0);}
+
+/* FLOATING START TRIP BUTTON */
+.fab{position:fixed;bottom:28px;right:28px;z-index:500;height:52px;padding:0 22px;border-radius:30px;background:var(--green);border:none;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:0 4px 24px rgba(0,181,41,0.55),0 0 0 3px rgba(0,181,41,0.2);transition:transform .15s,box-shadow .15s;}
+.fab:hover{transform:scale(1.04);box-shadow:0 6px 32px rgba(0,181,41,0.7),0 0 0 4px rgba(0,181,41,0.25);}
+.fab.active{background:#FF4444;box-shadow:0 4px 24px rgba(255,68,68,0.55),0 0 0 3px rgba(255,68,68,0.2);}
+.fab.active:hover{box-shadow:0 6px 32px rgba(255,68,68,0.7),0 0 0 4px rgba(255,68,68,0.25);}
+.fab i{font-size:20px;color:#000;}
+.fab-text{font-family:var(--font);font-size:13px;font-weight:900;color:#000;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;}
+.fab-label{display:none;}
+
+/* START TRIP MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:600;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--bg-card);border:1px solid var(--border-bright);border-radius:var(--radius);padding:24px;width:420px;max-width:90vw;position:relative;}
+.modal-title{font-size:18px;font-weight:900;color:var(--text-primary);margin-bottom:4px;}
+.modal-sub{font-size:13px;color:var(--text-secondary);margin-bottom:20px;}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;}
+.modal-start-btn{width:100%;padding:13px;background:var(--green);color:#000;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:900;font-family:var(--font);cursor:pointer;letter-spacing:.06em;text-transform:uppercase;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;}
+.modal-start-btn:hover{background:var(--green-dim);}
+
+/* LIVE TRIP BANNER */
+.live-banner{background:linear-gradient(135deg,#0a1f0a,#122212);border:1px solid rgba(0,181,41,0.35);border-radius:var(--radius);padding:16px 20px;margin-bottom:14px;position:relative;overflow:hidden;display:none;}
+.live-banner.active{display:block;}
+.live-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--orange));}
+.live-banner-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.live-indicator{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.06em;}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 1.4s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.3);}}
+.live-end-btn{padding:6px 14px;background:#FF4444;color:white;border:none;border-radius:var(--radius-sm);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);text-transform:uppercase;letter-spacing:.04em;transition:opacity .15s;}
+.live-end-btn:hover{opacity:.85;}
+.live-route{font-size:17px;font-weight:900;color:var(--text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.live-route i{font-size:16px;color:var(--green);}
+.live-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.live-stat{background:rgba(0,0,0,0.3);border-radius:var(--radius-sm);padding:10px 8px;text-align:center;border:1px solid rgba(0,181,41,0.15);}
+.live-stat-val{font-family:var(--font-mono);font-size:17px;font-weight:600;color:var(--green);}
+.live-stat-lbl{font-size:9px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+.live-progress{margin-top:12px;}
+.live-progress-top{display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary);margin-bottom:5px;font-weight:600;}
+.live-bar{height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;}
+.live-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green),var(--orange));transition:width .5s ease;}
 </style>
 </head>
 <body>
@@ -241,6 +281,24 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
 <!-- DASHBOARD -->
 <div id="page-dashboard" class="page active">
   <div class="dash-layout">
+    <!-- LIVE TRIP BANNER spans full width -->
+    <div id="live-banner" class="live-banner" style="grid-column:1/-1;">
+      <div class="live-banner-top">
+        <div class="live-indicator"><div class="live-dot"></div>Live trip in progress</div>
+        <button class="live-end-btn" onclick="endLiveTrip()"><i class="ti ti-square" style="font-size:11px;"></i> End Trip</button>
+      </div>
+      <div class="live-route"><i class="ti ti-truck"></i><span id="live-route-text">Nashville, TN → Dallas, TX</span></div>
+      <div class="live-stats">
+        <div class="live-stat"><div class="live-stat-val" id="live-miles">0</div><div class="live-stat-lbl">Miles</div></div>
+        <div class="live-stat"><div class="live-stat-val" id="live-time">0:00</div><div class="live-stat-lbl">Elapsed</div></div>
+        <div class="live-stat"><div class="live-stat-val" id="live-remain">—</div><div class="live-stat-lbl">To Go</div></div>
+        <div class="live-stat"><div class="live-stat-val" id="live-pts-earn">+0</div><div class="live-stat-lbl">Pts Earned</div></div>
+      </div>
+      <div class="live-progress">
+        <div class="live-progress-top"><span id="live-load-label">Flatbed</span><span id="live-pct-label">0% complete</span></div>
+        <div class="live-bar"><div class="live-fill" id="live-fill" style="width:0%"></div></div>
+      </div>
+    </div>
     <div style="display:flex;flex-direction:column;gap:12px;">
       <div class="card">
         <div class="profile-top">
@@ -476,6 +534,32 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);font
       </div>
     </div>
     <div style="margin-top:14px;"><button class="submit-btn" onclick="submitTrip()"><i class="ti ti-truck"></i>Log This Trip &amp; Earn Points</button></div>
+  </div>
+</div>
+
+<!-- FLOATING START TRIP BUTTON -->
+<button class="fab" id="fab" onclick="fabClick()">
+  <i class="ti ti-truck" id="fab-icon"></i>
+  <span class="fab-text" id="fab-text">Start Trip</span>
+</button>
+<div class="fab-label" id="fab-label"></div>
+
+<!-- START TRIP MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title">Start a Live Trip</div>
+    <div class="modal-sub">Your trip will appear live on your dashboard and friends can see you rolling.</div>
+    <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    <div class="form-group"><label class="form-label">From</label><input class="form-input" id="live-from" placeholder="e.g. Nashville, TN"></div>
+    <div class="form-group"><label class="form-label">To</label><input class="form-input" id="live-to" placeholder="e.g. Dallas, TX"></div>
+    <div class="form-group" style="margin-bottom:16px;"><label class="form-label">Load type</label>
+      <select class="form-select" id="live-load">
+        <option value="">Select load type...</option>
+        <option>Flatbed</option><option>Dry Van</option><option>Reefer / Refrigerated</option>
+        <option>Tanker</option><option>Hazmat</option><option>Oversize / Heavy Haul</option>
+      </select>
+    </div>
+    <button class="modal-start-btn" onclick="startLiveTrip()"><i class="ti ti-truck"></i>Start Trip Now</button>
   </div>
 </div>
 
@@ -811,12 +895,124 @@ function showPage(id){
 let toastTimer;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3200);}
 
+// ── LIVE TRIP ─────────────────────────────────────────────────────
+let liveTrip = null;
+let liveTicker = null;
+
+function fabClick() {
+  if (liveTrip) {
+    endLiveTrip();
+  } else {
+    openModal();
+  }
+}
+
+function openModal() {
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+function startLiveTrip() {
+  const from = document.getElementById('live-from').value.trim();
+  const to = document.getElementById('live-to').value.trim();
+  const load = document.getElementById('live-load').value;
+  if (!from || !to || !load) { showToast('Please fill in From, To and Load type'); return; }
+
+  // Estimate total miles (rough straight-line sim)
+  const estimatedMiles = Math.floor(Math.random() * 600) + 300;
+
+  liveTrip = { from, to, load, estimatedMiles, elapsed: 0, miles: 0 };
+  closeModal();
+
+  // Update banner
+  document.getElementById('live-route-text').textContent = from + ' → ' + to;
+  document.getElementById('live-load-label').textContent = load;
+  document.getElementById('live-remain').textContent = estimatedMiles.toLocaleString();
+  document.getElementById('live-banner').classList.add('active');
+
+  // FAB becomes red stop button
+  document.getElementById('fab').classList.add('active');
+  document.getElementById('fab-icon').className = 'ti ti-square';
+  document.getElementById('fab-text').textContent = 'End Trip';
+
+  // Tick every second — simulate miles rolling up
+  liveTicker = setInterval(() => {
+    liveTrip.elapsed++;
+    // Simulate ~55mph — roughly 0.015 miles per second
+    liveTrip.miles = Math.min(liveTrip.estimatedMiles, liveTrip.miles + 0.015);
+    const milesInt = Math.floor(liveTrip.miles);
+    const pct = Math.min(100, Math.round((liveTrip.miles / liveTrip.estimatedMiles) * 100));
+    const remain = Math.max(0, liveTrip.estimatedMiles - milesInt);
+    const hrs = Math.floor(liveTrip.elapsed / 3600);
+    const mins = Math.floor((liveTrip.elapsed % 3600) / 60);
+    const secs = liveTrip.elapsed % 60;
+    const timeStr = hrs > 0
+      ? hrs + ':' + String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0')
+      : mins + ':' + String(secs).padStart(2,'0');
+    const ptsEarned = milesInt + Math.floor(liveTrip.elapsed / 60);
+
+    document.getElementById('live-miles').textContent = milesInt.toLocaleString();
+    document.getElementById('live-time').textContent = timeStr;
+    document.getElementById('live-remain').textContent = remain.toLocaleString();
+    document.getElementById('live-pts-earn').textContent = '+' + ptsEarned;
+    document.getElementById('live-fill').style.width = pct + '%';
+    document.getElementById('live-pct-label').textContent = pct + '% complete';
+  }, 1000);
+
+  showPage('dashboard');
+  showToast('🚛 Trip started! Rolling from ' + from + ' to ' + to);
+}
+
+function endLiveTrip() {
+  if (!liveTrip) return;
+  clearInterval(liveTicker);
+
+  const milesInt = Math.floor(liveTrip.miles);
+  const earned = milesInt + 50;
+  pts += earned;
+  updatePts();
+
+  // Add to feed
+  const item = document.createElement('div');
+  item.className = 'feed-item';
+  item.innerHTML = '<div class="feed-av" style="background:rgba(0,181,41,0.15);color:var(--green);">RH</div><div class="feed-body"><div class="feed-name">Randy Hawkins <span style="font-size:11px;color:var(--text-muted);">· Just now</span></div><div class="feed-desc">' + liveTrip.from + ' → ' + liveTrip.to + ' · ' + milesInt.toLocaleString() + ' miles · ' + liveTrip.load + '</div><div class="feed-meta"><span class="feed-stat"><i class="ti ti-road"></i>' + milesInt.toLocaleString() + ' mi</span><span class="feed-stat"><i class="ti ti-coin"></i>+' + earned + ' pts</span><span class="tag tag-green">' + liveTrip.load + '</span></div></div>';
+  const feedList = document.getElementById('feed-list');
+  if (feedList) feedList.insertBefore(item, feedList.firstChild);
+
+  // Reset
+  liveTrip = null;
+  document.getElementById('live-banner').classList.remove('active');
+  document.getElementById('fab').classList.remove('active');
+  document.getElementById('fab-icon').className = 'ti ti-truck';
+  document.getElementById('fab-text').textContent = 'Start Trip';
+  document.getElementById('live-miles').textContent = '0';
+  document.getElementById('live-time').textContent = '0:00';
+  document.getElementById('live-fill').style.width = '0%';
+
+  showToast('✅ Trip ended! +' + earned + ' points earned');
+}
+
 document.addEventListener('DOMContentLoaded',()=>{
   const d=document.getElementById('trip-date');if(d)d.valueAsDate=new Date();
   renderPatches();
   renderDashBadges();
   renderPassport();
   renderCommunity();
+  // Auto-start a demo trip so the banner is visible on load
+  setTimeout(()=>{
+    document.getElementById('live-from').value = 'Nashville, TN';
+    document.getElementById('live-to').value = 'Dallas, TX';
+    document.getElementById('live-load').value = 'Flatbed';
+    startLiveTrip();
+    // Jump ahead 4 hours into the trip so it looks mid-journey
+    if (liveTrip) {
+      liveTrip.elapsed = 14400;
+      liveTrip.miles = 240;
+    }
+  }, 400);
 });
 </script>
 </body>
